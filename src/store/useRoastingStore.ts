@@ -11,6 +11,12 @@ interface RoastingState {
     startTime: number | null; // Timestamp
     duration: number; // Seconds
 
+    // Settings
+    settings: {
+        defaultStartTemp: number;
+        defaultStartHeat: number;
+    };
+
     // Navigation View State
     view: 'dashboard' | 'history';
     setView: (view: 'dashboard' | 'history') => void;
@@ -33,6 +39,7 @@ interface RoastingState {
 
     // Actions
     setMetadata: (data: Partial<Pick<RoastingState, 'machine' | 'roasterName' | 'productName' | 'beanWeight'>>) => void;
+    updateSettings: (settings: Partial<RoastingState['settings']>) => void;
     startRoasting: (startTemp: number, startHeat: number) => void;
     stopRoasting: (endTemp: number, notes?: string) => Promise<void>;
     tick: () => void;
@@ -65,6 +72,11 @@ export const useRoastingStore = create<RoastingState>()(
             startTime: null,
             duration: 0,
 
+            settings: {
+                defaultStartTemp: 400,
+                defaultStartHeat: 80
+            },
+
             view: 'dashboard',
             setView: (view) => set({ view }),
 
@@ -80,6 +92,10 @@ export const useRoastingStore = create<RoastingState>()(
             events: [],
 
             setMetadata: (data) => set((state) => ({ ...state, ...data })),
+
+            updateSettings: (newSettings) => set((state) => ({
+                settings: { ...state.settings, ...newSettings }
+            })),
 
             startRoasting: (startTemp, startHeat) => {
                 const id = crypto.randomUUID();
@@ -217,6 +233,7 @@ export const useRoastingStore = create<RoastingState>()(
             storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({
                 view: state.view, // Persist view state too
+                settings: state.settings,
                 sessionId: state.sessionId,
                 status: state.status,
                 startTime: state.startTime,

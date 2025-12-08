@@ -1,7 +1,9 @@
 // import { cn } from "../../lib/utils";
+import { useState } from "react";
 import { useRoastingStore } from "../../store/useRoastingStore";
 import { Button } from "../ui";
-import { LayoutDashboard, History, Coffee } from "lucide-react";
+import { LayoutDashboard, History, Coffee, Settings } from "lucide-react";
+import { SettingsModal } from "../dashboard/SettingsModal";
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -9,9 +11,11 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
     const { view, setView } = useRoastingStore();
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     return (
         <div className="min-h-screen bg-background font-sans antialiased text-foreground">
+            <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
             <header className="border-b sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <div className="container flex h-14 max-w-screen-2xl items-center px-4">
                     <div className="mr-4 flex items-center space-x-2">
@@ -36,6 +40,13 @@ export function Layout({ children }: LayoutProps) {
                         >
                             <History className="h-4 w-4 mr-2" />
                             History
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setSettingsOpen(true)}
+                        >
+                            <Settings className="h-5 w-5" />
                         </Button>
                     </div>
                 </div>
