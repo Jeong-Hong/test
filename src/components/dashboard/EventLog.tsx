@@ -98,11 +98,11 @@ export function EventLog() {
     };
 
     return (
-        <Card className="h-full">
+        <Card className="max-h-[600px] flex flex-col">
             <CardHeader>
                 <CardTitle className="text-lg">주요 이벤트</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="overflow-y-auto flex-1 p-4">
                 {/* Default Buttons */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
                     <Button

@@ -6,11 +6,11 @@ import type { MachineType } from '../../types/domain';
 import { exportToJSON, exportToCSV, importFromJSON } from '../../lib/export-utils';
 
 export function RoastingControls() {
-    const { status, startRoasting, stopRoasting, machine, roasterName, productName, setMetadata, restoreSession } = useRoastingStore();
+    const { status, startRoasting, stopRoasting, machine, roasterName, productName, setMetadata, restoreSession, settings } = useRoastingStore();
 
     // Local state for start inputs
-    const [startTemp, setStartTemp] = useState<string>('400');
-    const [startHeat, setStartHeat] = useState<string>('80');
+    const [startTemp, setStartTemp] = useState<string>(settings.defaultStartTemp.toString());
+    const [startHeat, setStartHeat] = useState<string>(settings.defaultStartHeat.toString());
 
     // Local state for end inputs
     const [endTemp, setEndTemp] = useState<string>('');

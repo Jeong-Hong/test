@@ -29,6 +29,14 @@ export async function getAllSessions() {
     return await db.sessions.orderBy('date').reverse().toArray();
 }
 
+export async function getLastSession() {
+    return await db.sessions.orderBy('date').reverse().first();
+}
+
+export async function getRecentSessions(limit = 20) {
+    return await db.sessions.orderBy('date').reverse().limit(limit).toArray();
+}
+
 export async function getTodaySessionCount() {
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
