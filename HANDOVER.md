@@ -1,11 +1,12 @@
 # Coffee Roasting Log System - Developer Handover
 
 ## 1. Project Overview
-This project is a **client-side web application** for coffee roasters to record and assist their roasting process in real-time. It replaces manual paper logs with a digital interface that offers timers, temperature logging, RoR (Rate of Rise) calculation, and data visualization.
+This project is a **client-side web application** for coffee roasters to record and assist their roasting process in real-time. It replaces manual paper logs with a digital interface that offers timers, temperature logging (Fahrenheit), RoR (Rate of Rise) calculation, and data visualization.
 
-**Current Status**: MVP (Minimum Viable Product) Complete.
+**Current Status**: MVP Refined & Enhanced.
 - All core requirements from `PRD.md` are implemented.
-- The app builds successfully and runs locally.
+- **Fahrenheit (€°F)** conversion complete.
+- UX improvements regarding data entry and navigation implemented.
 
 ## 2. Tech Stack & Architecture
 - **Framework**: React 19 + Vite 7 + TypeScript
@@ -30,12 +31,26 @@ src/
 ## 3. Implemented Features
 | Feature | Status | Description |
 | :--- | :--- | :--- |
-| **Roasting Session** | ✅ Done | Start/Stop logic, Metadata inputs (Machine, Bean, Weight). |
-| **Real-time Log** | ✅ Done | Minute-by-minute inputs for Temp/Heat. Auto-calculates RoR. |
-| **Event Logging** | ✅ Done | Log TP, Heat Change, Cracks with one click. |
-| **Chart** | ✅ Done | Visualizes Temp curve and RoR. Event markers included. |
-| **Persistence** | ✅ Done | Auto-saves to IndexedDB. Restores state on reload via Zustand. |
+| **Roasting Session** | ✅ Done | Start/Stop logic, Metadata inputs. **Temperature in °F**. |
+| **Real-time Log** | ✅ Done | Minute-by-minute inputs. **Quick Input Bar** added for simpler entry. |
+| **Event Logging** | ✅ Done | Log TP, Heat Change, Cracks. **Auto-syncs to Remarks**. TP Heat input hidden. |
+| **Chart** | ✅ Done | Visualizes Temp curve and RoR in Fahrenheit. |
+| **Persistence** | ✅ Done | Auto-saves to IndexedDB. Restores state on reload. |
 | **Export** | ✅ Done | Download session as JSON (backup) or CSV (analysis). |
+| **Status Panel** | ✅ Done | Shows Timer, Heat, and **Today's Batch Count**. |
+
+### Recent Enhancements (v1.1)
+- **Fahrenheit Conversion**: All units updated from Celsius to Fahrenheit (default start 400°F).
+- **Quick Input**:
+  - Located between Chart and Grid.
+  - Auto-initializes at Minute 1.
+  - **Enter key** auto-advances to the next minute.
+- **Event Logic**:
+  - Events (TP, Cracks) append text to the `note` field in the log.
+  - "TP" event hides the heat input (preserves current heat).
+  - Event input fields start empty (no auto-fill).
+  - Enter key supports form submission.
+- **Keyboard Navigation**: Added Enter key support in Controls and Event forms for faster workflow.
 
 ## 4. How to Run
 ### Development
@@ -54,20 +69,21 @@ npm run build
 These are the recommended tasks for the next developer:
 
 1.  **Tailwind Configuration**:
-    - Currently using Tailwind v3.4.17 because the v4 installation caused PostCSS conflict errors. Stick to v3 or carefully migrate config if v4 is strictly needed.
+    - Currently using Tailwind v3.4.17. Stick to v3 or carefully migrate to v4 if needed.
 
 2.  **Import Logic**:
     - The "Export to JSON" feature is built (`src/lib/export-utils.ts`), but the **"Import JSON"** UI button and logic need to be implemented.
 
 3.  **History View**:
-    - The database (`src/db/db.ts`) saves all sessions, but there is currently no UI to **browse past sessions**. The current UI only shows the *active* or *just completed* session.
+    - The database (`src/db/db.ts`) saves all sessions.
     - **Task**: Create a `/history` page or a modal to list records from `db.sessions`.
+    - Currently, only "Batch Count" in the status panel uses this historical data.
 
 4.  **UX Polish**:
-    - The `TemperatureGrid` allows editing past minutes, but validation could be stricter (e.g., prevent negative RoR logic overrides if needed).
+    - Consider adding a dedicated settings modal for adjusting default values (e.g., if user wants to change default Start Temp from 400).
 
 5.  **Type Safety**:
-    - `verbatimModuleSyntax` is enabled in `tsconfig`. Ensure you use `import type { ... }` when importing interfaces.
+    - `verbatimModuleSyntax` is enabled. Use `import type`.
 
 ## 6. Resources
 - **PRD**: `PRD.md` (Root directory) - The source of truth for requirements.

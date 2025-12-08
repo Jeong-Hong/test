@@ -11,6 +11,10 @@ interface RoastingState {
     startTime: number | null; // Timestamp
     duration: number; // Seconds
 
+    // Navigation View State
+    view: 'dashboard' | 'history';
+    setView: (view: 'dashboard' | 'history') => void;
+
     // Metadata Inputs
     machine: MachineType;
     roasterName: string;
@@ -34,6 +38,7 @@ interface RoastingState {
     tick: () => void;
     updateLog: (minute: number, temp: number | null, heat: number) => void;
     addEvent: (type: RoastingEvent['type'], temp: number, heat: number, notes?: string) => void;
+    restoreSession: (session: RoastingSession) => void;
     reset: () => void;
 }
 
@@ -41,7 +46,8 @@ const INITIAL_LOGS: TemperatureRecord[] = Array.from({ length: 18 }, (_, i) => (
     time: i,
     temperature: null,
     ror: null,
-    heatLevel: 0
+    heatLevel: 0,
+    note: ''
 }));
 
 // Helper for format time
@@ -58,6 +64,9 @@ export const useRoastingStore = create<RoastingState>()(
             status: 'idle',
             startTime: null,
             duration: 0,
+
+            view: 'dashboard',
+            setView: (view) => set({ view }),
 
             machine: 'G60',
             roasterName: '',
@@ -76,7 +85,7 @@ export const useRoastingStore = create<RoastingState>()(
                 const id = crypto.randomUUID();
                 const logs = [...INITIAL_LOGS];
                 // Set first log (0 min)
-                logs[0] = { ...logs[0], temperature: startTemp, heatLevel: startHeat };
+                logs[0] = { ...logs[0], temperature: startTemp, heatLevel: startHeat, note: '투입' };
 
                 set({
                     sessionId: id,
@@ -136,15 +145,6 @@ export const useRoastingStore = create<RoastingState>()(
                         heatLevel: heat
                     };
 
-                    // Update current Temp/Heat if this is the latest entry or just active
-                    // PRD implies "Main Status" shows "Current Temp".
-                    // If we edit a past log, does current temp change? Theoretically no.
-                    // But if we edit the *latest* log?
-                    // Let's just track currentTemp separately or derive it.
-                    // For simplicity, just update currentTemp to the latest edited value?
-                    // Or keep currentTemp as independent state?
-                    // In the code below, I update currentTemp if it's passed.
-                    // Actually, let's keep currentTemp bound to the most recent update?
                     return { logs: newLogs, currentTemp: temp ?? state.currentTemp, currentHeat: heat };
                 });
             },
@@ -154,14 +154,52 @@ export const useRoastingStore = create<RoastingState>()(
                     const newEvent: RoastingEvent = {
                         id: crypto.randomUUID(),
                         type,
-                        // Format time logic
                         time: formatTimeSeconds(state.duration),
                         timestamp: state.duration,
                         temperature: temp,
                         heatLevel: heat,
                         notes
                     };
-                    return { events: [...state.events, newEvent] };
+
+                    // SYNC: Add event type to the corresponding minute log
+                    const logIndex = Math.min(Math.floor(state.duration / 60), 17);
+                    const newLogs = [...state.logs];
+                    const existingNote = newLogs[logIndex].note || '';
+
+                    newLogs[logIndex] = {
+                        ...newLogs[logIndex],
+                        note: existingNote ? `${existingNote}, ${type}` : type
+                    };
+
+                    return {
+                        events: [...state.events, newEvent],
+                        logs: newLogs
+                    };
+                });
+            },
+
+            restoreSession: (session: RoastingSession) => {
+                // Parse duration from endTime string (MM:SS) -> seconds
+                const [m, s] = (session.endTime || "00:00").split(':').map(Number);
+                const durationSeconds = (m * 60) + s;
+
+                set({
+                    sessionId: session.id,
+                    status: session.status || 'completed',
+                    startTime: new Date(session.date).getTime(),
+                    duration: durationSeconds,
+
+                    machine: session.machine,
+                    roasterName: session.roasterName || '',
+                    productName: session.productName || '',
+                    beanWeight: session.beanWeight || 0,
+
+                    // Recover last know state or start state
+                    currentTemp: session.endTemperature || session.startTemperature,
+                    currentHeat: session.logs[session.logs.length - 1]?.heatLevel || session.startHeatLevel,
+
+                    logs: session.logs,
+                    events: session.events
                 });
             },
 
@@ -178,6 +216,7 @@ export const useRoastingStore = create<RoastingState>()(
             name: 'roasting-session-storage',
             storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({
+                view: state.view, // Persist view state too
                 sessionId: state.sessionId,
                 status: state.status,
                 startTime: state.startTime,

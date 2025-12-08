@@ -28,3 +28,9 @@ export async function saveSessionToDB(session: RoastingSession) {
 export async function getAllSessions() {
     return await db.sessions.orderBy('date').reverse().toArray();
 }
+
+export async function getTodaySessionCount() {
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    return await db.sessions.where('date').aboveOrEqual(startOfDay).count();
+}

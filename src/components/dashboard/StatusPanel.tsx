@@ -1,11 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRoastingStore } from '../../store/useRoastingStore';
 import { Card, CardContent } from '../ui';
 import { formatTime } from '../../lib/utils';
-import { Clock, Thermometer, Flame, Activity } from 'lucide-react';
+import { getTodaySessionCount } from '../../db/db';
+import { Clock, Flame, Activity, Hash } from 'lucide-react';
 
 export function StatusPanel() {
-    const { status, duration, currentTemp, currentHeat, tick } = useRoastingStore();
+    const { status, duration, currentHeat, tick } = useRoastingStore();
+    const [batchCount, setBatchCount] = useState<number>(0);
+
+    // Fetch batch count on mount
+    useEffect(() => {
+        getTodaySessionCount().then(count => setBatchCount(count));
+    }, []);
 
     // Timer Effect
     useEffect(() => {
@@ -55,12 +62,12 @@ export function StatusPanel() {
                     </span>
                 </div>
 
-                {/* Current Temp */}
+                {/* Batch Count (Replaces Temp) */}
                 <div className="flex items-center gap-2">
-                    <Thermometer className="h-5 w-5 text-orange-500" />
+                    <Hash className="h-5 w-5 text-purple-500" />
                     <div className="flex flex-col">
-                        <span className="text-xs text-muted-foreground">현재 온도</span>
-                        <span className="text-xl font-bold">{currentTemp ?? 0}°C</span>
+                        <span className="text-xs text-muted-foreground">배치</span>
+                        <span className="text-xl font-bold">#{status === 'roasting' ? batchCount + 1 : batchCount}</span>
                     </div>
                 </div>
 

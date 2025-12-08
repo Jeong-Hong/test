@@ -43,7 +43,7 @@ export function RoastingChart() {
                         <YAxis
                             yAxisId="left"
                             domain={['auto', 'auto']}
-                            label={{ value: '온도 (°C)', angle: -90, position: 'insideLeft' }}
+                            label={{ value: 'Temperature (°F)', angle: -90, position: 'insideLeft' }}
                         />
                         <YAxis
                             yAxisId="right"

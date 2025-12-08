@@ -6,7 +6,7 @@ import { Flag, Flame, Zap } from 'lucide-react';
 import { formatTime } from '../../lib/utils';
 
 export function EventLog() {
-    const { status, currentTemp, currentHeat, addEvent, events, duration } = useRoastingStore();
+    const { status, currentHeat, addEvent, events, duration } = useRoastingStore();
 
     // State for active form
     const [activeEventType, setActiveEventType] = useState<EventType | null>(null);
@@ -18,7 +18,7 @@ export function EventLog() {
     const handleOpenForm = (type: EventType) => {
         setActiveEventType(type);
         // Pre-fill
-        setEvtTemp(currentTemp?.toString() || '');
+        setEvtTemp('');
         setEvtHeat(currentHeat?.toString() || '');
     };
 
@@ -47,13 +47,38 @@ export function EventLog() {
                 </h4>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                     <div className="space-y-1">
-                        <label className="text-xs">온도 (°C)</label>
-                        <Input value={evtTemp} onChange={e => setEvtTemp(e.target.value)} type="number" />
+                        <label className="text-xs">온도 (°F)</label>
+                        <Input
+                            id="evtTempInput"
+                            value={evtTemp}
+                            onChange={e => setEvtTemp(e.target.value)}
+                            type="number"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    if (activeEventType === 'TP') {
+                                        handleSubmit();
+                                    } else {
+                                        document.getElementById('evtHeatInput')?.focus();
+                                    }
+                                }
+                            }}
+                            autoFocus
+                        />
                     </div>
-                    <div className="space-y-1">
-                        <label className="text-xs">화력 (%)</label>
-                        <Input value={evtHeat} onChange={e => setEvtHeat(e.target.value)} type="number" />
-                    </div>
+                    {activeEventType !== 'TP' && (
+                        <div className="space-y-1">
+                            <label className="text-xs">화력 (%)</label>
+                            <Input
+                                id="evtHeatInput"
+                                value={evtHeat}
+                                onChange={e => setEvtHeat(e.target.value)}
+                                type="number"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleSubmit();
+                                }}
+                            />
+                        </div>
+                    )}
                 </div>
                 <div className="flex justify-end gap-2">
                     <Button variant="ghost" onClick={() => setActiveEventType(null)} size="sm">취소</Button>
@@ -129,7 +154,7 @@ export function EventLog() {
                             </div>
                             <div className="flex items-center gap-3 text-muted-foreground">
                                 <span>{evt.time}</span>
-                                <span>{evt.temperature}°C</span>
+                                <span>{evt.temperature}°F</span>
                                 <span>{evt.heatLevel}%</span>
                             </div>
                         </div>

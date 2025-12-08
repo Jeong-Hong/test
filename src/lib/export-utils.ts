@@ -44,3 +44,25 @@ export function exportToCSV(session: RoastingSession) {
     link.click();
     document.body.removeChild(link);
 }
+
+export async function importFromJSON(file: File): Promise<RoastingSession> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const json = JSON.parse(e.target?.result as string);
+
+                // Simple validation
+                if (!json.id || !Array.isArray(json.logs)) {
+                    throw new Error('Invalid roasting session file format');
+                }
+
+                resolve(json as RoastingSession);
+            } catch (err) {
+                reject(err);
+            }
+        };
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsText(file);
+    });
+}

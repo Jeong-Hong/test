@@ -3,13 +3,13 @@ import { useRoastingStore } from '../../store/useRoastingStore';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '../ui';
 import { Play, Square, Save, FileJson, FileSpreadsheet } from 'lucide-react';
 import type { MachineType } from '../../types/domain';
-import { exportToJSON, exportToCSV } from '../../lib/export-utils';
+import { exportToJSON, exportToCSV, importFromJSON } from '../../lib/export-utils';
 
 export function RoastingControls() {
-    const { status, startRoasting, stopRoasting, machine, roasterName, productName, setMetadata } = useRoastingStore();
+    const { status, startRoasting, stopRoasting, machine, roasterName, productName, setMetadata, restoreSession } = useRoastingStore();
 
     // Local state for start inputs
-    const [startTemp, setStartTemp] = useState<string>('200');
+    const [startTemp, setStartTemp] = useState<string>('400');
     const [startHeat, setStartHeat] = useState<string>('80');
 
     // Local state for end inputs
@@ -59,6 +59,31 @@ export function RoastingControls() {
                         }}>
                             <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV 내보내기
                         </Button>
+                        <div className="relative">
+                            <input
+                                type="file"
+                                accept=".json"
+                                className="hidden"
+                                id="import-json-input"
+                                onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    try {
+                                        const session = await importFromJSON(file);
+                                        if (confirm(`${session.date}의 로스팅 기록을 불러오시겠습니까? 현재 작업 내용은 사라질 수 있습니다.`)) {
+                                            restoreSession(session);
+                                        }
+                                    } catch (err) {
+                                        alert('파일을 불러오는데 실패했습니다: ' + (err as Error).message);
+                                    } finally {
+                                        e.target.value = ''; // Reset
+                                    }
+                                }}
+                            />
+                            <Button variant="outline" onClick={() => document.getElementById('import-json-input')?.click()}>
+                                <FileJson className="mr-2 h-4 w-4" /> 가져오기
+                            </Button>
+                        </div>
                         <Button onClick={() => useRoastingStore.getState().reset()}>
                             새로운 로스팅 시작하기
                         </Button>
@@ -78,11 +103,11 @@ export function RoastingControls() {
                 </CardHeader>
                 <CardContent className="flex gap-4 items-end">
                     <div className="grid w-full max-w-sm items-center gap-1.5">
-                        <label htmlFor="endTemp" className="text-sm font-medium">배출 온도 (°C)</label>
+                        <label htmlFor="endTemp" className="text-sm font-medium">배출 온도 (°F)</label>
                         <Input
                             id="endTemp"
                             type="number"
-                            placeholder="예: 210"
+                            placeholder="예: 400"
                             value={endTemp}
                             onChange={(e) => setEndTemp(e.target.value)}
                         />
@@ -167,19 +192,32 @@ export function RoastingControls() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-orange-600">투입 온도 (°C)</label>
+                        <label className="text-sm font-medium text-orange-600">투입 온도 (°F)</label>
                         <Input
+                            id="startTempInput"
                             type="number"
                             value={startTemp}
                             onChange={(e) => setStartTemp(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    document.getElementById('startHeatInput')?.focus();
+                                }
+                            }}
                         />
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-red-600">시작 화력 (%)</label>
                         <Input
+                            id="startHeatInput"
                             type="number"
                             value={startHeat}
                             onChange={(e) => setStartHeat(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    if (!startTemp || !startHeat) return alert('투입 온도와 시작 화력을 입력해주세요.');
+                                    startRoasting(Number(startTemp), Number(startHeat));
+                                }
+                            }}
                         />
                     </div>
                     <div className="flex items-end">

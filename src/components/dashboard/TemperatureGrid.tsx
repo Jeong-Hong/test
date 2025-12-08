@@ -22,7 +22,7 @@ export function TemperatureGrid() {
                 <thead className="bg-muted text-muted-foreground font-medium">
                     <tr>
                         <th className="p-3 w-20">시간</th>
-                        <th className="p-3">온도 (°C)</th>
+                        <th className="p-3">온도 (°F)</th>
                         <th className="p-3">RoR</th>
                         <th className="p-3">화력 (%)</th>
                         <th className="p-3">비고</th>
@@ -58,7 +58,7 @@ export function TemperatureGrid() {
                                     />
                                 </td>
                                 <td className="p-3 text-xs text-muted-foreground">
-                                    {log.time === 0 ? '투입' : ''}
+                                    {log.note || (log.time === 0 ? '투입' : '')}
                                 </td>
                             </tr>
                         );

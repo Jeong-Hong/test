@@ -7,6 +7,7 @@ export interface TemperatureRecord {
     temperature: number | null; // Nullable if not yet entered
     ror: number | null; // Calculated on the fly or stored? Stored is better for history.
     heatLevel: number;
+    note?: string;
 }
 
 export type EventType = 'TP' | 'HEAT_CHANGE' | 'FIRST_CRACK' | 'SECOND_CRACK';

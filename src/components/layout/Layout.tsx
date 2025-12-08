@@ -1,11 +1,15 @@
-import { Coffee } from "lucide-react";
 // import { cn } from "../../lib/utils";
+import { useRoastingStore } from "../../store/useRoastingStore";
+import { Button } from "../ui";
+import { LayoutDashboard, History, Coffee } from "lucide-react";
 
 interface LayoutProps {
     children: React.ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {
+    const { view, setView } = useRoastingStore();
+
     return (
         <div className="min-h-screen bg-background font-sans antialiased text-foreground">
             <header className="border-b sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -17,7 +21,22 @@ export function Layout({ children }: LayoutProps) {
                         </span>
                     </div>
                     <div className="flex flex-1 items-center justify-end space-x-2">
-                        {/* Future: Settings or User Profile */}
+                        <Button
+                            variant={view === 'dashboard' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => setView('dashboard')}
+                        >
+                            <LayoutDashboard className="h-4 w-4 mr-2" />
+                            Dashboard
+                        </Button>
+                        <Button
+                            variant={view === 'history' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => setView('history')}
+                        >
+                            <History className="h-4 w-4 mr-2" />
+                            History
+                        </Button>
                     </div>
                 </div>
             </header>
