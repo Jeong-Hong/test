@@ -97,6 +97,16 @@ export function EventLog() {
         }
     };
 
+    const getEventLabel = (type: EventType) => {
+        switch (type) {
+            case 'TP': return 'TP';
+            case 'HEAT_CHANGE': return '화력 조절';
+            case 'FIRST_CRACK': return '1차 크랙';
+            case 'SECOND_CRACK': return '2차 크랙';
+            default: return type;
+        }
+    };
+
     return (
         <Card className="max-h-[600px] flex flex-col">
             <CardHeader>
@@ -104,38 +114,38 @@ export function EventLog() {
             </CardHeader>
             <CardContent className="overflow-y-auto flex-1 p-4">
                 {/* Default Buttons */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
+                <div className="grid grid-cols-4 gap-1 mb-4">
                     <Button
                         variant="outline"
-                        className="border-green-200 hover:bg-green-50 hover:text-green-700"
+                        className="border-green-200 hover:bg-green-50 hover:text-green-700 text-xs px-1 whitespace-nowrap h-9"
                         onClick={() => handleOpenForm('TP')}
                         disabled={status !== 'roasting'}
                     >
-                        <Flag className="mr-2 h-4 w-4" /> TP
+                        <Flag className="mr-1 h-3 w-3" /> TP
                     </Button>
                     <Button
                         variant="outline"
-                        className="border-orange-200 hover:bg-orange-50 hover:text-orange-700"
+                        className="border-orange-200 hover:bg-orange-50 hover:text-orange-700 text-xs px-1 whitespace-nowrap h-9"
                         onClick={() => handleOpenForm('HEAT_CHANGE')}
                         disabled={status !== 'roasting'}
                     >
-                        <Flame className="mr-2 h-4 w-4" /> 화력조절
+                        <Flame className="mr-1 h-3 w-3" /> 화력조절
                     </Button>
                     <Button
                         variant="outline"
-                        className="border-yellow-200 hover:bg-yellow-50 hover:text-yellow-700"
+                        className="border-yellow-200 hover:bg-yellow-50 hover:text-yellow-700 text-xs px-1 whitespace-nowrap h-9"
                         onClick={() => handleOpenForm('FIRST_CRACK')}
                         disabled={status !== 'roasting'}
                     >
-                        <Zap className="mr-2 h-4 w-4" /> 1차 크랙
+                        <Zap className="mr-1 h-3 w-3" /> 1차 크랙
                     </Button>
                     <Button
                         variant="outline"
-                        className="border-red-200 hover:bg-red-50 hover:text-red-700"
+                        className="border-red-200 hover:bg-red-50 hover:text-red-700 text-xs px-1 whitespace-nowrap h-9"
                         onClick={() => handleOpenForm('SECOND_CRACK')}
                         disabled={status !== 'roasting'}
                     >
-                        <Zap className="mr-2 h-4 w-4" /> 2차 크랙
+                        <Zap className="mr-1 h-3 w-3" /> 2차 크랙
                     </Button>
                 </div>
 
@@ -150,7 +160,7 @@ export function EventLog() {
                         <div key={evt.id} className="flex items-center justify-between p-2 border rounded-md text-sm">
                             <div className="flex items-center gap-2">
                                 {getEventIcon(evt.type)}
-                                <span className="font-bold">{evt.type}</span>
+                                <span className="font-bold">{getEventLabel(evt.type)}</span>
                             </div>
                             <div className="flex items-center gap-3 text-muted-foreground">
                                 <span>{evt.time}</span>

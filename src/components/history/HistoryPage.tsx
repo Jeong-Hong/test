@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRoastingStore } from '../../store/useRoastingStore';
-import { getAllSessions } from '../../db/db';
+import { getAllSessions, db } from '../../db/db';
 import type { RoastingSession } from '../../types/domain';
 import { Card, CardContent, Button } from '../ui';
 import { Calendar, RefreshCw, FileJson } from 'lucide-react';
@@ -65,7 +65,7 @@ export function HistoryPage() {
                                         <span>•</span>
                                         <span>{session.machine}</span>
                                         <span>•</span>
-                                        <span>{session.roasterName || 'Unknown'}</span>
+                                        <span>{session.roasterName || '알 수 없음'}</span>
                                     </div>
                                     <div className="text-sm font-mono mt-1">
                                         {session.endTime} 소요 / 최종 {session.endTemperature}°F / {session.status}

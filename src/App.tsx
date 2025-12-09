@@ -1,6 +1,7 @@
 import { Layout } from './components/layout/Layout';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { HistoryPage } from './components/history/HistoryPage';
+import { AnalysisView } from './components/analysis/AnalysisView';
 import { useRoastingStore } from './store/useRoastingStore';
 
 function App() {
@@ -8,7 +9,9 @@ function App() {
 
   return (
     <Layout>
-      {view === 'history' ? <HistoryPage /> : <Dashboard />}
+      {view === 'history' && <HistoryPage />}
+      {view === 'analysis' && <AnalysisView />}
+      {view === 'dashboard' && <Dashboard />}
     </Layout>
   );
 }

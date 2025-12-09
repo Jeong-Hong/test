@@ -43,7 +43,7 @@ export function RoastingChart() {
                         <YAxis
                             yAxisId="left"
                             domain={['auto', 'auto']}
-                            label={{ value: 'Temperature (°F)', angle: -90, position: 'insideLeft' }}
+                            label={{ value: '온도 (°F)', angle: -90, position: 'insideLeft' }}
                         />
                         <YAxis
                             yAxisId="right"
@@ -83,12 +83,22 @@ export function RoastingChart() {
                             if (evt.type === 'HEAT_CHANGE') color = 'orange';
                             if (evt.type.includes('CRACK')) color = 'red';
 
+                            const getEventLabel = (type: string) => {
+                                switch (type) {
+                                    case 'TP': return 'TP';
+                                    case 'HEAT_CHANGE': return '화력';
+                                    case 'FIRST_CRACK': return '1차';
+                                    case 'SECOND_CRACK': return '2차';
+                                    default: return type;
+                                }
+                            };
+
                             return (
                                 <ReferenceLine
                                     key={evt.id}
                                     x={min}
                                     stroke={color}
-                                    label={{ value: evt.type, position: 'top', fill: color, fontSize: 10 }}
+                                    label={{ value: getEventLabel(evt.type), position: 'top', fill: color, fontSize: 10 }}
                                     yAxisId="left"
                                 />
                             );

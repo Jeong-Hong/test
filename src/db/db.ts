@@ -6,11 +6,13 @@ const db = new Dexie('RoastingDatabase') as Dexie & {
         RoastingSession,
         'id' // primary key "id" (for the typings only)
     >;
+    settings: EntityTable<{ key: string; value: any }, 'key'>;
 };
 
 // Schema definition
 db.version(1).stores({
-    sessions: 'id, date, machine, productName, status' // indexes
+    sessions: 'id, date, machine, productName, status', // indexes
+    settings: 'key' // key-value store for app settings (including file handles)
 });
 
 export { db };

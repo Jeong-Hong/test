@@ -3,90 +3,75 @@
 ## 1. Project Overview
 This project is a **client-side web application** for coffee roasters to record and assist their roasting process in real-time. It replaces manual paper logs with a digital interface that offers timers, temperature logging (Fahrenheit), RoR (Rate of Rise) calculation, and data visualization.
 
-**Current Status**: Phase 2 In Progress.
-- Core MVP features complete.
-- **JSON Import & History View** implemented.
-- **UX Improvements** pending.
+**Current Status**: **v1.6 - Localization & UX Improvements.**
+- Core Logging & Dashboard: Complete.
+- History & Management: Complete.
+- **Analysis Comparison**: Complete.
+- **Data Safety (Auto-Backup)**: Complete.
 
 ## 2. Tech Stack & Architecture
 - **Framework**: React 19 + Vite 7 + TypeScript
-- **Styling**: TailwindCSS 3.4 (Downgraded from v4 for compatibility) + Lucide React Icons
-- **State Management**: Zustand (with Persist middleware for session recovery)
-- **Database**: IndexedDB via Dexie.js (Local offline storage)
-- **Visualization**: Recharts (Line charts for Temp & RoR)
+- **Styling**: TailwindCSS 3.4 + Lucide React Icons
+- **State Management**: Zustand (Persist middleware)
+- **Database**: IndexedDB via Dexie.js (Offline storage)
+- **Charts**: Recharts (Multi-series support)
+- **Local Integration**: **File System Access API** (For auto-backup)
 
 ### Directory Structure
 ```
 src/
 ├── components/
-│   ├── dashboard/       # Dashboard widgets (Chart, Controls, EventLog, Grid, Status)
-│   ├── history/         # History View Components
-│   ├── layout/          # Main App Layout (Header, Container)
-│   └── ui/              # Reusable atoms (Button, Input, Card)
-├── db/                  # Dexie.js database configuration
-├── lib/                 # Pure utility functions (Time format, RoR calculation, Export)
-├── store/               # Zustand Global Store (useRoastingStore)
-└── types/               # TypeScript Domain Interfaces
+│   ├── analysis/        # [NEW] Analysis Tab (Chart, DiffTable, LogTable)
+│   ├── dashboard/       # Dashboard widgets
+│   ├── history/         # History View
+│   ├── layout/          # Layout & Navigation
+│   ├── settings/        # [NEW] Backup & App Settings
+│   └── ui/              # Reusable atoms
+├── db/                  # Dexie.js (RoastingSession + Settings Schema)
+├── lib/                 # Utilities (backup-service.ts added)
+├── store/               # Global Store (useRoastingStore)
+└── types/               # Domain Models
 ```
 
 ## 3. Implemented Features
 | Feature | Status | Description |
 | :--- | :--- | :--- |
-| **Roasting Session** | ✅ Done | Start/Stop logic, Metadata inputs. **Temperature in °F**. |
-| **Real-time Log** | ✅ Done | Minute-by-minute inputs. **Quick Input Bar** added for simpler entry. |
-| **Event Logging** | ✅ Done | Log TP, Heat Change, Cracks. **Auto-syncs to Remarks**. TP Heat input hidden. |
-| **Chart** | ✅ Done | Visualizes Temp curve and RoR in Fahrenheit. |
-| **Persistence** | ✅ Done | Auto-saves to IndexedDB. Restores state on reload. |
-| **Export** | ✅ Done | Download session as JSON (backup) or CSV (analysis). |
-| **Status Panel** | ✅ Done | Shows Timer, Heat, and **Today's Batch Count**. |
-| **JSON Import** | ✅ Done | Restore sessions from JSON backup files. |
-| **History Page** | ✅ Done | List past sessions, view details, and restore to dashboard. |
+| **Roasting Session** | ✅ Done | Start/Stop logic. **Temp in °F**. **BBP Field** added. |
+| **Real-time Log** | ✅ Done | 0–17 min logging. **Smart Product Select** by machine. |
+| **Event Logging** | ✅ Done | TP, Cracks, Heat Change. **Korean Labels**. Compact UI. |
+| **Persistence** | ✅ Done | **1. IndexedDB**: Auto-save locally.<br>**2. Auto-Backup (NEW)**: Saves JSON to user's local disk automatically on completion. |
+| **Dashboard** | ✅ Done | Status Widgets, Timer, Last Session Reference, Real-time Chart. **Fully Localized**. |
+| **History** | ✅ Done | Session list, JSON export/restore, Detailed review. Localized UI. |
+| **Analysis Tab** | ✅ Done | **[NEW]** Compare two sessions side-by-side.<br>- **Comparison Chart**: Overlay Temp/RoR curves.<br>- **Event Diff**: Compare Stats (End Temp, Time, Weight, Event Timings).<br>- **Log Table**: Minute-by-minute numerical comparison (Δ Temp). |
+| **Settings** | ✅ Done | Default Start Temp/Heat + **Local Backup Folder Connection**. |
 
-### Recent Enhancements (v1.2)
-- **History System**: 
-  - Store-based routing (`view` state) to switch between Dashboard and History.
-  - List view of past sessions with restore functionality.
-- **JSON Import**: 
-  - Restore full session state from backup files.
-- **Dashboard Refactor**: 
-  - Separated dashboard components from `App.tsx` to `Dashboard.tsx`.
+## 4. Key Implementation Details
 
-## 4. How to Run
-### Development
-```bash
-npm run dev
-# Server starts at http://localhost:5173
-```
+### A. Analysis Tab (`AnalysisView.tsx`)
+- **Dual Session Selection**: Uses native `<select>` or custom UI to pick Session A (Base) and Session B (Compare).
+- **Visualization**: `ComparisonChart` overlays two datasets using distinct color schemes (Orange vs Slate) for clarity.
+- **Data Drill-down**:
+    - `EventDiffTable`: High-level metrics (Duration, End Temp) & crucial event milestones.
+    - `LogComparisonTable`: Granular minute-by-minute difference (Delta) highlighting deviations.
 
-### Production Build
-```bash
-npm run build
-# Outputs to /dist directory
-```
+### B. Auto-Backup (`backup-service.ts`)
+- **Problem**: Browser storage (IndexedDB) can be cleared by user settings or "Incognito" mode, leading to data loss.
+- **Solution**: Implemented **File System Access API**.
+    - User grants permission to a specific local folder **once**.
+    - The handle is stored in IndexedDB (`db.settings`).
+    - `stopRoasting` triggers `saveSessionToBackup`, writing a standard JSON file directly to the user's disk.
+    - **Note**: Browsers may require permission re-verification after a full restart.
 
 ## 5. Known Issues & Next Steps
-These are the recommended tasks for the next developer:
+1.  **Mobile Component**:
+    - The Analysis Tab tables are optimized for Desktop. Mobile view needs specific CSS adjustments if phone usage is prioritized.
+2.  **Linting**:
+    - Minor unused imports or variable warnings in `backup-service.ts` or `Layout.tsx` (mostly cleanup done, but verify if changing strictness).
+3.  **Chart Tooltips**:
+    - Comparison chart tooltips can be dense. Consider custom formatting to separate Session A/B data more clearly.
 
-1.  **Tailwind Configuration**:
-    - Currently using Tailwind v3.4.17. Stick to v3 or carefully migrate to v4 if needed.
-
-2.  **Import Logic**:
-    - ✅ **Completed**: `importFromJSON` utility and UI button implemented.
-
-3.  **History View**:
-    - ✅ **Completed**: `/history` view implemented using State-based routing (no react-router).
-
-4.  **UX Polish**:
-    - Consider adding a dedicated settings modal for adjusting default values (e.g., if user wants to change default Start Temp from 400).
-
-5.  **Type Safety**:
-    - `verbatimModuleSyntax` is enabled. Use `import type`.
-
-6.  **Build Environment**:
-    - ⚠️ **Issue**: Local PowerShell execution policies (`PSSecurityException`) may prevent `npm run build`. 
-    - **Workaround**: Verify with `npm run dev` or adjust local policies.
-
-## 6. Resources
-- **PRD**: `PRD.md` (Root directory) - The source of truth for requirements.
-- **Store**: `src/store/useRoastingStore.ts` - The brain of the application.
-- **DB Schema**: `src/db/db.ts` - Schema definition.
+## 6. How to Run
+```bash
+npm run dev   # Start dev server
+npm run build # Production build
+```
