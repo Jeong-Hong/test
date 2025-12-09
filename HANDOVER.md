@@ -3,7 +3,7 @@
 ## 1. Project Overview
 This project is a **client-side web application** for coffee roasters to record and assist their roasting process in real-time. It replaces manual paper logs with a digital interface that offers timers, temperature logging (Fahrenheit), RoR (Rate of Rise) calculation, and data visualization.
 
-**Current Status**: **v1.6 - Localization & UX Improvements.**
+**Current Status**: **v1.7 - Weather Integration.**
 - Core Logging & Dashboard: Complete.
 - History & Management: Complete.
 - **Analysis Comparison**: Complete.
@@ -44,6 +44,7 @@ src/
 | **History** | ✅ Done | Session list, JSON export/restore, Detailed review. Localized UI. |
 | **Analysis Tab** | ✅ Done | **[NEW]** Compare two sessions side-by-side.<br>- **Comparison Chart**: Overlay Temp/RoR curves.<br>- **Event Diff**: Compare Stats (End Temp, Time, Weight, Event Timings).<br>- **Log Table**: Minute-by-minute numerical comparison (Δ Temp). |
 | **Settings** | ✅ Done | Default Start Temp/Heat + **Local Backup Folder Connection**. |
+| **Integrations** | ✅ Done | **Weather API (Open-Meteo)**: Auto-fetch Temp, Humidity, Wind on start. |
 
 ## 4. Key Implementation Details
 

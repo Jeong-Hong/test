@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { RoastingSession, TemperatureRecord, RoastingEvent, MachineType, RoastingStatus } from '../types/domain';
+import type { RoastingSession, TemperatureRecord, RoastingEvent, MachineType, RoastingStatus, WeatherData } from '../types/domain';
 import { calculateRoR } from '../lib/utils';
 import { saveSessionToDB } from '../db/db';
+import { fetchCurrentWeather } from '../lib/weather-service';
 
 interface RoastingState {
     // Session Data
@@ -30,6 +31,7 @@ interface RoastingState {
     productName: string;
     beanWeight: number;
     bbp: string;
+    weather?: WeatherData;
 
     // Real-time Data
     currentTemp: number; // Display only? Or derived?
@@ -45,6 +47,7 @@ interface RoastingState {
     setMetadata: (data: Partial<Pick<RoastingState, 'machine' | 'roasterName' | 'productName' | 'beanWeight' | 'bbp'>>) => void;
     updateSettings: (settings: Partial<RoastingState['settings']>) => void;
     setAnalysisSessions: (sessionA: string | null, sessionB: string | null) => void;
+    fetchWeather: () => Promise<void>;
     startRoasting: (startTemp: number, startHeat: number) => void;
     stopRoasting: (endTemp: number, notes?: string) => Promise<void>;
     tick: () => void;
@@ -106,6 +109,17 @@ export const useRoastingStore = create<RoastingState>()(
                 settings: { ...state.settings, ...newSettings }
             })),
 
+            fetchWeather: async () => {
+                try {
+                    const weather = await fetchCurrentWeather();
+                    set({ weather });
+                } catch (error) {
+                    console.error('Failed to fetch weather:', error);
+                    // Optionally set an error state or notify via UI (toast not avail, maybe simple alert or just log)
+                    alert('날씨 정보를 가져오는데 실패했습니다: ' + (error instanceof Error ? error.message : 'Unknown error'));
+                }
+            },
+
             startRoasting: (startTemp, startHeat) => {
                 const id = crypto.randomUUID();
                 const logs = [...INITIAL_LOGS];
@@ -134,6 +148,7 @@ export const useRoastingStore = create<RoastingState>()(
                     productName: state.productName,
                     beanWeight: state.beanWeight,
                     bbp: state.bbp,
+                    weather: state.weather,
                     startTemperature: state.logs[0].temperature || 0,
                     startHeatLevel: state.logs[0].heatLevel,
                     endTemperature: endTemp,
@@ -231,6 +246,8 @@ export const useRoastingStore = create<RoastingState>()(
                     roasterName: session.roasterName || '',
                     productName: session.productName || '',
                     beanWeight: session.beanWeight || 0,
+                    bbp: session.bbp || '',
+                    weather: session.weather,
 
                     // Recover last know state or start state
                     currentTemp: session.endTemperature || session.startTemperature,
@@ -247,7 +264,8 @@ export const useRoastingStore = create<RoastingState>()(
                 duration: 0,
                 startTime: null,
                 logs: INITIAL_LOGS,
-                events: []
+                events: [],
+                weather: undefined // Optional: Clear weather on reset? Let's say yes for new session authenticity.
             })
         }),
         {
@@ -266,6 +284,7 @@ export const useRoastingStore = create<RoastingState>()(
                 productName: state.productName,
                 beanWeight: state.beanWeight,
                 bbp: state.bbp,
+                weather: state.weather,
                 logs: state.logs,
                 events: state.events
             }),
