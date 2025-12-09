@@ -44,7 +44,8 @@ src/
 | **History** | ✅ Done | Session list, JSON export/restore, Detailed review. Localized UI. |
 | **Analysis Tab** | ✅ Done | **[NEW]** Compare two sessions side-by-side.<br>- **Comparison Chart**: Overlay Temp/RoR curves.<br>- **Event Diff**: Compare Stats (End Temp, Time, Weight, Event Timings).<br>- **Log Table**: Minute-by-minute numerical comparison (Δ Temp). |
 | **Settings** | ✅ Done | Default Start Temp/Heat + **Local Backup Folder Connection**. |
-| **Integrations** | ✅ Done | **KMA Weather API (Public Data Portal)**: Auto-fetch Temp, Hum, Wind. Proxy configured. |
+| **Integrations** | ✅ Done | **KMA Weather API**: Auto-fetch Temp, Hum, Wind. **StatusPanel UI** fixed (persistent display). |
+| **Usability** | ✅ Done | **One-Click Script (`start_app.bat`)**: Auto-dependency check & Server/Browser launch. |
 
 ## 4. Key Implementation Details
 

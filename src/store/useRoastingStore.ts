@@ -266,7 +266,6 @@ export const useRoastingStore = create<RoastingState>()(
                 startTime: null,
                 logs: INITIAL_LOGS,
                 events: [],
-                weather: undefined,
                 notes: undefined
             })
         }),
