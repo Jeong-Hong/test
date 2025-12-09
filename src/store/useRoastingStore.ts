@@ -29,8 +29,8 @@ interface RoastingState {
     machine: MachineType;
     roasterName: string;
     productName: string;
-    beanWeight: number;
     bbp: string;
+    notes?: string; // Memo for the session
     weather?: WeatherData;
 
     // Real-time Data
@@ -44,7 +44,7 @@ interface RoastingState {
     events: RoastingEvent[];
 
     // Actions
-    setMetadata: (data: Partial<Pick<RoastingState, 'machine' | 'roasterName' | 'productName' | 'beanWeight' | 'bbp'>>) => void;
+    setMetadata: (data: Partial<Pick<RoastingState, 'machine' | 'roasterName' | 'productName' | 'bbp' | 'notes'>>) => void;
     updateSettings: (settings: Partial<RoastingState['settings']>) => void;
     setAnalysisSessions: (sessionA: string | null, sessionB: string | null) => void;
     fetchWeather: () => Promise<void>;
@@ -94,7 +94,6 @@ export const useRoastingStore = create<RoastingState>()(
             machine: 'G60',
             roasterName: '',
             productName: '',
-            beanWeight: 0,
             bbp: '',
 
             currentTemp: 0,
@@ -140,13 +139,15 @@ export const useRoastingStore = create<RoastingState>()(
 
             stopRoasting: async (endTemp, notes) => {
                 const state = get();
+                // Save notes to store state as well so it persists in 'completed' view
+                set({ notes });
+
                 const session: RoastingSession = {
                     id: state.sessionId!,
                     date: new Date(state.startTime!).toISOString(),
                     machine: state.machine,
                     roasterName: state.roasterName,
                     productName: state.productName,
-                    beanWeight: state.beanWeight,
                     bbp: state.bbp,
                     weather: state.weather,
                     startTemperature: state.logs[0].temperature || 0,
@@ -245,9 +246,9 @@ export const useRoastingStore = create<RoastingState>()(
                     machine: session.machine,
                     roasterName: session.roasterName || '',
                     productName: session.productName || '',
-                    beanWeight: session.beanWeight || 0,
                     bbp: session.bbp || '',
                     weather: session.weather,
+                    notes: session.notes,
 
                     // Recover last know state or start state
                     currentTemp: session.endTemperature || session.startTemperature,
@@ -265,7 +266,8 @@ export const useRoastingStore = create<RoastingState>()(
                 startTime: null,
                 logs: INITIAL_LOGS,
                 events: [],
-                weather: undefined // Optional: Clear weather on reset? Let's say yes for new session authenticity.
+                weather: undefined,
+                notes: undefined
             })
         }),
         {
@@ -282,9 +284,9 @@ export const useRoastingStore = create<RoastingState>()(
                 machine: state.machine,
                 roasterName: state.roasterName,
                 productName: state.productName,
-                beanWeight: state.beanWeight,
                 bbp: state.bbp,
                 weather: state.weather,
+                notes: state.notes,
                 logs: state.logs,
                 events: state.events
             }),
