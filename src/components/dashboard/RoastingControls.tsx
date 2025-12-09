@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useRoastingStore } from '../../store/useRoastingStore';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '../ui';
-import { Play, Square, Save, FileJson, FileSpreadsheet } from 'lucide-react';
+import { Play, Square, Save, FileJson, FileSpreadsheet, CloudSun } from 'lucide-react';
 import type { MachineType } from '../../types/domain';
 import { exportToJSON, exportToCSV, importFromJSON } from '../../lib/export-utils';
 import { PRODUCTS_BY_MACHINE } from '../../lib/constants';
 
 export function RoastingControls() {
-    const { status, startRoasting, stopRoasting, machine, roasterName, productName, setMetadata, restoreSession, settings } = useRoastingStore();
+    const { status, startRoasting, stopRoasting, machine, roasterName, productName, setMetadata, restoreSession, settings, fetchWeather, weather } = useRoastingStore();
 
     // Local state for start inputs
     const [startTemp, setStartTemp] = useState<string>(settings.defaultStartTemp.toString());
@@ -199,6 +199,47 @@ export function RoastingControls() {
                             placeholder="예: 380F"
                         />
                     </div>
+                </div>
+
+                {/* Weather Information */}
+                <div className="border-t pt-4 mt-4">
+                    <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-semibold flex items-center gap-2">
+                            <CloudSun className="h-4 w-4" /> 날씨 정보
+                        </h4>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => fetchWeather()}
+                            className="text-xs h-7"
+                        >
+                            📍 날씨 가져오기
+                        </Button>
+                    </div>
+                    {weather ? (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm bg-slate-50 p-3 rounded-md">
+                            <div>
+                                <span className="text-slate-500 block text-xs">기온</span>
+                                <span className="font-medium">{weather.temperature}°C</span>
+                            </div>
+                            <div>
+                                <span className="text-slate-500 block text-xs">습도</span>
+                                <span className="font-medium">{weather.humidity}%</span>
+                            </div>
+                            <div>
+                                <span className="text-slate-500 block text-xs">풍속</span>
+                                <span className="font-medium">{weather.windSpeed}m/s</span>
+                            </div>
+                            <div>
+                                <span className="text-slate-500 block text-xs">풍향</span>
+                                <span className="font-medium">{weather.windDirection}°</span>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="text-xs text-slate-400 text-center py-2 bg-slate-50 rounded-md">
+                            버튼을 눌러 현재 날씨를 기록하세요.
+                        </div>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4">

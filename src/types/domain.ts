@@ -24,6 +24,14 @@ export interface RoastingEvent {
     notes?: string;
 }
 
+export interface WeatherData {
+    temperature: number;      // °C
+    humidity: number;         // %
+    windSpeed: number;        // km/h
+    windDirection: number;    // Degree
+    description?: string;
+}
+
 export interface RoastingSession {
     id: string;
     date: string; // ISO String
@@ -34,6 +42,7 @@ export interface RoastingSession {
     productName?: string;
     beanWeight?: number;
     bbp?: string; // Between Batch Protocol (Next Batch Heat)
+    weather?: WeatherData; // Weather Information
 
     // Start Data
     startTemperature: number;
