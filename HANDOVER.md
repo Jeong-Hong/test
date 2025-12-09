@@ -71,7 +71,15 @@ src/
     - Comparison chart tooltips can be dense. Consider custom formatting to separate Session A/B data more clearly.
 
 ## 6. How to Run
+
+### Option A: Developer Mode (Manual)
 ```bash
 npm run dev   # Start dev server
 npm run build # Production build
 ```
+
+### Option B: Easy Start (Windows)
+Double-click **`start_app.bat`** in the project root.
+- Automatically checks for Node.js.
+- Installs dependencies if missing.
+- Opens the browser to the app.

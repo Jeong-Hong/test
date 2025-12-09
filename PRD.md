@@ -383,3 +383,8 @@ interface RoastingEvent {
   }
 }
 ```
+### 3.4 실행 편의성 (Usability)
+- **Windows 원클릭 실행**: 기술적 지식이 없는 사용자도 쉽게 실행할 수 있도록 `start_app.bat` 스크립트를 제공해야 한다.
+  - Node.js 미설치 시 안내 또는 자동 처리
+  - 의존성 라이브러리 자동 설치
+  - 브라우저 자동 실행
