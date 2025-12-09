@@ -36,7 +36,7 @@ src/
 ## 3. Implemented Features
 | Feature | Status | Description |
 | :--- | :--- | :--- |
-| **Roasting Session** | ✅ Done | Start/Stop logic. **Temp in °F**. **BBP Field** added. |
+| **Roasting Session** | ✅ Done | Start/Stop logic. **Temp in °F**. **BBP Field** added. **Memo(Notes)** persisted. |
 | **Real-time Log** | ✅ Done | 0–17 min logging. **Smart Product Select** by machine. |
 | **Event Logging** | ✅ Done | TP, Cracks, Heat Change. **Korean Labels**. Compact UI. |
 | **Persistence** | ✅ Done | **1. IndexedDB**: Auto-save locally.<br>**2. Auto-Backup (NEW)**: Saves JSON to user's local disk automatically on completion. |
@@ -44,7 +44,7 @@ src/
 | **History** | ✅ Done | Session list, JSON export/restore, Detailed review. Localized UI. |
 | **Analysis Tab** | ✅ Done | **[NEW]** Compare two sessions side-by-side.<br>- **Comparison Chart**: Overlay Temp/RoR curves.<br>- **Event Diff**: Compare Stats (End Temp, Time, Weight, Event Timings).<br>- **Log Table**: Minute-by-minute numerical comparison (Δ Temp). |
 | **Settings** | ✅ Done | Default Start Temp/Heat + **Local Backup Folder Connection**. |
-| **Integrations** | ✅ Done | **Weather API (Open-Meteo)**: Auto-fetch Temp, Humidity, Wind on start. |
+| **Integrations** | ✅ Done | **KMA Weather API (Public Data Portal)**: Auto-fetch Temp, Hum, Wind. Proxy configured. |
 
 ## 4. Key Implementation Details
 

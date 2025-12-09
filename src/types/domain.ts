@@ -40,7 +40,6 @@ export interface RoastingSession {
     machine: MachineType;
     roasterName?: string;
     productName?: string;
-    beanWeight?: number;
     bbp?: string; // Between Batch Protocol (Next Batch Heat)
     weather?: WeatherData; // Weather Information
 

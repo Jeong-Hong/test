@@ -3,11 +3,21 @@ import { useRoastingStore } from '../../store/useRoastingStore';
 import { Card, CardContent } from '../ui';
 import { formatTime } from '../../lib/utils';
 import { getTodaySessionCount } from '../../db/db';
-import { Clock, Flame, Activity, Hash } from 'lucide-react';
+import { Clock, Flame, Activity, Hash, CloudSun, Wind, Droplets, MapPin } from 'lucide-react';
 
 export function StatusPanel() {
-    const { status, duration, currentHeat, tick } = useRoastingStore();
+    const { status, duration, currentHeat, tick, fetchWeather, weather } = useRoastingStore();
     const [batchCount, setBatchCount] = useState<number>(0);
+
+    // Weather Auto-fetch (1 Hour Interval)
+    useEffect(() => {
+        fetchWeather();
+        const interval = setInterval(() => {
+            fetchWeather();
+        }, 3600000); // 1 hour (3,600,000 ms)
+
+        return () => clearInterval(interval);
+    }, [fetchWeather]);
 
     // Fetch batch count on mount
     useEffect(() => {
@@ -79,6 +89,32 @@ export function StatusPanel() {
                         <span className="text-xl font-bold">{currentHeat}%</span>
                     </div>
                 </div>
+
+                {/* Weather Info (Compact) */}
+                {weather && (
+                    <div className="flex items-center gap-3 border-l pl-4 hidden xl:flex">
+                        <div className="flex flex-col items-end">
+                            <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                <Clock className="h-3 w-3" /> {weather.description}
+                            </div>
+                            <div className="flex gap-3 text-sm mt-0.5">
+                                <div className="flex items-center gap-1" title="기온">
+                                    <CloudSun className="h-4 w-4 text-orange-500" />
+                                    <span className="font-bold">{weather.temperature}°C</span>
+                                </div>
+                                <div className="flex items-center gap-1" title="습도">
+                                    <Droplets className="h-4 w-4 text-blue-500" />
+                                    <span className="font-medium">{weather.humidity}%</span>
+                                </div>
+                                <div className="flex items-center gap-1" title="풍향/풍속">
+                                    <Wind className="h-4 w-4 text-gray-500" />
+                                    <span className="font-medium">{weather.windSpeed}m/s</span>
+                                    <span className="text-xs text-gray-400">({weather.windDirection}°)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </CardContent>
         </Card>
     );
