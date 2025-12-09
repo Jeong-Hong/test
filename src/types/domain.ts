@@ -33,6 +33,7 @@ export interface RoastingSession {
     roasterName?: string;
     productName?: string;
     beanWeight?: number;
+    bbp?: string; // Between Batch Protocol (Next Batch Heat)
 
     // Start Data
     startTemperature: number;

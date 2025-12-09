@@ -18,14 +18,18 @@ interface RoastingState {
     };
 
     // Navigation View State
-    view: 'dashboard' | 'history';
-    setView: (view: 'dashboard' | 'history') => void;
+    view: 'dashboard' | 'history' | 'analysis';
+    setView: (view: 'dashboard' | 'history' | 'analysis') => void;
+
+    // Analysis State
+    analysisSessions: { sessionA: string | null; sessionB: string | null };
 
     // Metadata Inputs
     machine: MachineType;
     roasterName: string;
     productName: string;
     beanWeight: number;
+    bbp: string;
 
     // Real-time Data
     currentTemp: number; // Display only? Or derived?
@@ -38,8 +42,9 @@ interface RoastingState {
     events: RoastingEvent[];
 
     // Actions
-    setMetadata: (data: Partial<Pick<RoastingState, 'machine' | 'roasterName' | 'productName' | 'beanWeight'>>) => void;
+    setMetadata: (data: Partial<Pick<RoastingState, 'machine' | 'roasterName' | 'productName' | 'beanWeight' | 'bbp'>>) => void;
     updateSettings: (settings: Partial<RoastingState['settings']>) => void;
+    setAnalysisSessions: (sessionA: string | null, sessionB: string | null) => void;
     startRoasting: (startTemp: number, startHeat: number) => void;
     stopRoasting: (endTemp: number, notes?: string) => Promise<void>;
     tick: () => void;
@@ -80,10 +85,14 @@ export const useRoastingStore = create<RoastingState>()(
             view: 'dashboard',
             setView: (view) => set({ view }),
 
+            analysisSessions: { sessionA: null, sessionB: null },
+            setAnalysisSessions: (sessionA, sessionB) => set({ analysisSessions: { sessionA, sessionB } }),
+
             machine: 'G60',
             roasterName: '',
             productName: '',
             beanWeight: 0,
+            bbp: '',
 
             currentTemp: 0,
             currentHeat: 0,
@@ -124,6 +133,7 @@ export const useRoastingStore = create<RoastingState>()(
                     roasterName: state.roasterName,
                     productName: state.productName,
                     beanWeight: state.beanWeight,
+                    bbp: state.bbp,
                     startTemperature: state.logs[0].temperature || 0,
                     startHeatLevel: state.logs[0].heatLevel,
                     endTemperature: endTemp,
@@ -136,6 +146,18 @@ export const useRoastingStore = create<RoastingState>()(
                 };
 
                 await saveSessionToDB(session);
+
+                // Auto-Backup
+                import('../lib/backup-service').then(async ({ saveSessionToBackup }) => {
+                    const result = await saveSessionToBackup(session);
+                    if (result.success) {
+                        console.log(result.message);
+                        // Optional: Toast notification here if we had a toast system
+                    } else {
+                        console.warn(result.message);
+                    }
+                });
+
                 set({ status: 'completed' });
             },
 
@@ -233,6 +255,7 @@ export const useRoastingStore = create<RoastingState>()(
             storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({
                 view: state.view, // Persist view state too
+                analysisSessions: state.analysisSessions, // Persist analysis sessions
                 settings: state.settings,
                 sessionId: state.sessionId,
                 status: state.status,
@@ -242,6 +265,7 @@ export const useRoastingStore = create<RoastingState>()(
                 roasterName: state.roasterName,
                 productName: state.productName,
                 beanWeight: state.beanWeight,
+                bbp: state.bbp,
                 logs: state.logs,
                 events: state.events
             }),

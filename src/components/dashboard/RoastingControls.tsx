@@ -4,6 +4,7 @@ import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '../ui';
 import { Play, Square, Save, FileJson, FileSpreadsheet } from 'lucide-react';
 import type { MachineType } from '../../types/domain';
 import { exportToJSON, exportToCSV, importFromJSON } from '../../lib/export-utils';
+import { PRODUCTS_BY_MACHINE } from '../../lib/constants';
 
 export function RoastingControls() {
     const { status, startRoasting, stopRoasting, machine, roasterName, productName, setMetadata, restoreSession, settings } = useRoastingStore();
@@ -150,7 +151,14 @@ export function RoastingControls() {
                         <select
                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             value={machine}
-                            onChange={(e) => setMetadata({ machine: e.target.value as MachineType })}
+                            onChange={(e) => {
+                                const newMachine = e.target.value as MachineType;
+                                const defaultProduct = PRODUCTS_BY_MACHINE[newMachine]?.[0] || '';
+                                setMetadata({
+                                    machine: newMachine,
+                                    productName: defaultProduct
+                                });
+                            }}
                         >
                             <option value="G60">G60</option>
                             <option value="P25">P25</option>
@@ -171,21 +179,24 @@ export function RoastingControls() {
                     {/* Product Name */}
                     <div className="space-y-2">
                         <label className="text-sm font-medium">제품명</label>
-                        <Input
+                        <select
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             value={productName}
                             onChange={(e) => setMetadata({ productName: e.target.value })}
-                            placeholder="예: 에티오피아 예가체프"
-                        />
+                        >
+                            {PRODUCTS_BY_MACHINE[machine]?.map((prod) => (
+                                <option key={prod} value={prod}>{prod}</option>
+                            ))}
+                        </select>
                     </div>
 
-                    {/* Bean Weight */}
+                    {/* BBP (Between Batch Protocol) - Replaces Bean Weight */}
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">투입량 (g)</label>
+                        <label className="text-sm font-medium text-black-600">BBP </label>
                         <Input
-                            type="number"
-                            value={useRoastingStore.getState().beanWeight || ''}
-                            onChange={(e) => setMetadata({ beanWeight: Number(e.target.value) })}
-                            placeholder="0"
+                            value={useRoastingStore.getState().bbp || ''}
+                            onChange={(e) => setMetadata({ bbp: e.target.value })}
+                            placeholder="예: 380F"
                         />
                     </div>
                 </div>
